@@ -1,50 +1,32 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "flask-recommendation"
-    }
-
     stages {
-
-        stage('Checkout Code') {
+        stage('Clone Repository') {
             steps {
-                checkout scm
+                echo 'Cloning Repository from GitHub...'
+                git branch: 'main',
+                    url: 'https://github.com/username/repo.git'
             }
         }
 
-        stage('Build Docker Images') {
+        stage('Deploy with Docker Compose') {
             steps {
-                sh 'docker compose build'
+                echo 'Deploying with Docker Compose...'
+                sh '''
+                    docker compose down || true
+                    docker compose up -d --build
+                '''
             }
         }
-
-        stage('Stop Old Containers') {
-            steps {
-                sh 'docker compose down || true'
-            }
-        }
-
-        stage('Run Containers') {
-            steps {
-                sh 'docker compose up -d'
-            }
-        }
-
-        stage('Check Running Containers') {
-            steps {
-                sh 'docker ps'
-            }
-        }
-
     }
 
     post {
         success {
-            echo 'Pipeline executed successfully'
+            echo 'Pipeline finished successfully!'
         }
         failure {
-            echo 'Pipeline failed'
+            echo 'Pipeline failed!'
         }
     }
 }
