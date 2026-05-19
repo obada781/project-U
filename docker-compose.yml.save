@@ -1,4 +1,4 @@
-version: '3'
+nano docker-compose.ymlnano docker-compose.ymlversion: '3'
 
 services:
 
@@ -6,7 +6,6 @@ services:
     build: ./backend
     ports:
       - "5000:5000"
-
     environment:
       - DATABASE_URL=mysql+pymysql://appuser:apppass@db:3306/recommenddb
 
@@ -14,20 +13,24 @@ services:
       - db
 
   db:
-    image: mysql:5.7
+    image: mysql:8
     restart: always
-
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: recommenddb
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
-
     ports:
       - "3306:3306"
 
     volumes:
       - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   mysql_data:
